@@ -27,7 +27,7 @@ canvas *= 255
     -1 代表填充
 
 '''
-cv2.ellipse(canvas,(256,256),(100,50),0, 0, 360, color=(100, 200, 0), thickness=-1)
+cv2.ellipse(img=canvas,center=(256,256), axes=(100,50), angle=0, startAngle=0, endAngle=360, color=(100, 200, 0), thickness=-1)
 
 cv2.imshow("draw_ellipse", canvas)
 cv2.imwrite("draw_ellipse.png", canvas)

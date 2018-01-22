@@ -8,7 +8,7 @@ canvas *= 255
 # 绘制一个绿色的圆
 cv2.circle(canvas, center=(150, 150), radius=50, color=(0, 255, 0))
 # 绘制一个红色圆 边缘宽度(thickness = 5)
-cv2.circle(canvas, (150, 150), 60, color=(0, 0, 255), thickness=5)
+cv2.circle(img=canvas, center=(150, 150), radius=60, color=(0, 0, 255), thickness=5)
 # 绘制一个蓝色的实心圆 (thickness = -1)
 cv2.circle(canvas, (150, 150), 30, color=(255, 0, 0), thickness=-1)
 
