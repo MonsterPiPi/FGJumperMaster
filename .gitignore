@@ -6,6 +6,8 @@ __pycache__/
 # C extensions
 *.so
 
+# Secret 
+预备知识_Python_Numpy_Linux.md
 # Distribution / packaging
 .Python
 env/
