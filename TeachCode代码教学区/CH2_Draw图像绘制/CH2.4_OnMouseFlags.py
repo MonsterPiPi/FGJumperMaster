@@ -1,19 +1,21 @@
 # -*- coding: utf-8 -*- 
 '''
-鼠标 每次双击，触发回调函数， 在点击处绘制一个圆圈
+CTRL + 鼠标左键， 移动鼠标，绘制一个系列圆圈
 
 '''
 import cv2  
 import numpy as np  
   
-# 鼠标回调函数  
-# x, y 都是相对于窗口内的图像的位置
 
+# CTRL + 鼠标左键， 移动鼠标，绘制一个系列圆圈
 def draw_circle(event,x,y,flags,param): 
     # 判断事件是否为 Left Button Double Clicck 
-    if event == cv2.EVENT_LBUTTONDBLCLK:  
-        cv2.circle(img,(x,y),20,(255,0,0),-1)  
-  
+    print(flags)
+    print(cv2.EVENT_FLAG_LBUTTON | cv2.EVENT_FLAG_CTRLKEY)
+    if event == cv2.EVENT_MOUSEMOVE and flags == (cv2.EVENT_FLAG_LBUTTON | cv2.EVENT_FLAG_CTRLKEY ):  
+        cv2.circle(img,(x,y),20,(255,0,0),-1)
+        
+
 # 创建一个黑色图像，并绑定窗口和鼠标回调函数  
 img = np.zeros((512,512,3), np.uint8)  
 cv2.namedWindow('image')
