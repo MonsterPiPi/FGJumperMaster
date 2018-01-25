@@ -13,7 +13,8 @@ import cv2
 import numpy as np
 
 # 样例图片
-sample_img = cv2.imread("./samples_roi/1.png")
+# sample_img = cv2.imread("./samples_roi/1.png")
+sample_img = cv2.imread("tmp.png")
 
 # 颜色阈值 Upper
 threshold_upper = None
@@ -53,10 +54,12 @@ def updateThreshold(x):
     print(threshold_upper)
     updateMask()
 
-cv2.namedWindow('image')
+cv2.namedWindow('image', flags= cv2.WINDOW_NORMAL | cv2.WINDOW_FREERATIO)
+# cv2.namedWindow('image')
 cv2.imshow('image', sample_img)
 
-cv2.namedWindow('mask')
+# cv2.namedWindow('mask')
+cv2.namedWindow('mask', flags= cv2.WINDOW_NORMAL | cv2.WINDOW_FREERATIO)
 
 # 函数原型
 # createTrackbar(trackbarName, windowName, value, count, onChange) -> None

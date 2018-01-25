@@ -101,3 +101,9 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+
+samples/
+samples_roi/
+output/
+output_details/

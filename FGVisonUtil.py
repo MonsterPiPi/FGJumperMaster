@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 
 import matplotlib.pyplot as plt
+import math
 
 class FGVisionUtil:
     '''
@@ -149,3 +150,24 @@ class FGVisionUtil:
             return False
 
         return True
+    
+    @staticmethod
+    def printImgInfo(img):
+        print("================打印一下图像的属性================")
+        print("图像对象的类型 {}".format(type(img)))
+        print(img.shape)
+        print("图像宽度: {} pixels".format(img.shape[1]))
+        print("图像高度: {} pixels".format(img.shape[0]))
+        print("通道: {}".format(img.shape[2]))
+        print("图像分辨率: {}".format(img.size))
+        print("数据类型: {}".format(img.dtype))
+    
+    @staticmethod
+    def cal_distance(pt1, pt2):
+        '''
+            获取棋子与下一跳盒子的距离
+        '''
+        (x1, y1) = pt1
+        (x2, y2) = pt2
+
+        return math.sqrt(math.pow((x2 - x1), 2) + math.pow((y2 - y1), 2))

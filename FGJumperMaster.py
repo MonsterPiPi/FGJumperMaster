@@ -32,8 +32,8 @@ class FGJumperMaster():
         self.shd_mask = None # 盒子阴影罩层 shadow mask
         
         # 棋子 (画面中的小人)
-        self.chs_lcolor = np.int32([19, 0, 0]) # 棋子的颜色阈值下界 chess color lower
-        self.chs_ucolor = np.int32([74, 16, 19]) # 棋子的颜色阈值上界 chess color upper
+        self.chs_lcolor = np.int32([59, 44, 37]) # 棋子的颜色阈值下界 chess color lower
+        self.chs_ucolor = np.int32([102 ,70 ,70]) # 棋子的颜色阈值上界 chess color upper
         self.chs_mask = None # 棋子的罩层
         self.chs_rect = None # 棋子所在的矩形区域
         self.chs_fposi = None # 棋子底部中心的位置 chess foot position
@@ -172,7 +172,7 @@ class FGJumperMaster():
                 top_box = box
                 top_contour = contours[i]
 
-        print("box : {}".format(top_box))
+        # print("box : {}".format(top_box))
 
         (x, y, w, h) = top_box
         # 这里有个问题， 如果两个box离的很近
