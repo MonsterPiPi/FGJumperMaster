@@ -230,6 +230,11 @@ class FGJumperMaster():
 
         self.distance = math.sqrt(math.pow((x2 - x1), 2) + math.pow((y2 - y1), 2))
     
+    def cal_delay(self):
+        ratio = 1.53
+        # 事件必须是整数类型
+        return int(self.distance * ratio)
+
     def visualization(self):
         '''
             可视化 计算过程.
