@@ -10,8 +10,7 @@ class ADBHelper:
         self.win_width = win_width
         self.win_height = win_height
         # 可以按压的矩形区域 内缩 margin个像素点。
-        # 因为屏幕上的边缘 点击会触发别的事件
-        # region = (x, y, width, height)
+        # 因为屏幕上的边缘 点击会触发别的事件        # region = (x, y, width, height)
         self.press_region = (margin, margin, win_width-margin, win_height-margin)
     @staticmethod
     def getScreenShotByADB():
@@ -21,8 +20,7 @@ class ADBHelper:
         # ADB截图的命令
         cmd = "adb shell screencap -p"
         # 运行指令
-        p = Popen(shlex.split(cmd), stdin=PIPE, stdout=PIPE, stderr=PIPE)
-        
+        p = Popen(shlex.split(cmd), stdin=PIPE, stdout=PIPE, stderr=PIPE)        
         # output与err返回的均是字节
         output, err_info = p.communicate()
         rc = p.returncode
@@ -60,9 +58,9 @@ class ADBHelper:
         cmd = 'adb shell input touchscreen swipe {} {} {} {} {}'.format(ptr1[0], ptr1[1], ptr2[0], ptr2[1], delay)
 
         # 运行指令
-        rc = subprocess.call(cmd, shell=True)
+        rc = subprocess.call(shlex.split(cmd))
 
-        return rc == 0;
+        return rc == 0
     
     def randPressOnScreen(self, delay=500):
         # 在屏幕上的可按压区域随意选取一个区域， 进行按压
