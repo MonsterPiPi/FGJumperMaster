@@ -92,20 +92,18 @@ class SampleLabel:
         
         # 创建一个窗口
         cv2.namedWindow(self.winname, flags= cv2.WINDOW_NORMAL | cv2.WINDOW_FREERATIO)
+        # 设置鼠标事件的回调函数
         cv2.setMouseCallback(self.winname, markChessAndBoxByHand, self)
 
 
-    def responseToKeyEvent(self, key):
-        
-        pass
-    
-    
     def updateImg(self, img, img_name = None):
-        # 更新当前源图像
+        # 更新当前源图像 - 深度拷贝
         self.img = img.copy()
-        # use copy deep copy
+        # 更新画布 - 深度拷贝
         self.canvas = img.copy()
+        # 重置 棋子底部坐标
         self.fchess = (0, 0)
+        # 重置盒子的中心
         self.cbox = (0, 0)
 
         if img_name == None:
@@ -117,7 +115,7 @@ class SampleLabel:
 
         # 重置标注状态
         self.mp = MP_UNMARK
-        
+        # 更新画布
         self.updateCanvas()
 
     def printProcessOnCanvas(self, info):
@@ -165,23 +163,32 @@ class SampleLabel:
         cv2.imshow(self.winname, self.canvas)
         
     def addLabel(self, x, y):
-        
+        '''
+            添加标签
+        '''
         if self.mp == MP_UNMARK:
+            # 当前标注的是棋子脚底
             self.fchess = (x, y)
+            # 更新状态码
             self.mp = MP_MARKED_FCHESS
         
         elif self.mp == MP_MARKED_FCHESS:
+            # 当前标注的是盒子的中心
             self.cbox = (x, y)
+            # 更新状态码
             self.mp = MP_MARKED_CBOX
         else:
             print("标注已完成")
 
+        '''
+        # 打印标注信息
         print("fchess")
         print(self.fchess)
         print("cbox")
         print(self.cbox)
         print("mp")
         print(self.mp)
+        '''
         self.updateCanvas()
         
     def isMarkDone(self):
@@ -194,26 +201,26 @@ class SampleLabel:
         '''
             保存图片
         '''
+        # 保存样本素材
         cv2.imwrite(self.save_path + self.img_name, self.img)
+        # 保存标注后的图片
         cv2.imwrite(self.save_path + 'log/' + self.img_name, self.canvas)
 
     def label2string(self):
+        '''
+            将标签转换为字符串, 用于保存在label.txt中
+        '''
         (x1, y1) = self.fchess
         (x2, y2) = self.cbox
-
         return ",".join([self.img_name, str(x1), str(y1), str(x2), str(y2)]) + '\n'
     
     def saveLabelInfo(self):
-        # 在文件后面追加 append
+        '''
+            添加标注信息 追加模式
+        '''
         with open(self.label_filename, 'a+') as f:
             f.write(self.label2string())
         
     def onDestroy(self):
-        # exit
-        # 关闭文件
-        # self.label_file.close()
         # 关闭窗口
         cv2.destroyWindow(self.winname)
-
-        # 退出并结束程序。
-        exit()
