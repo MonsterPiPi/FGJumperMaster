@@ -39,7 +39,6 @@ class FGJumperMaster():
         self.chs_fposi = None # 棋子底部中心的位置 chess foot position
         
         # 盒子
-
         self.box_max_width = 125
         self.box_max_height = 125 # 盒子的最大高度
         self.box_mask = None # 盒子的罩层
