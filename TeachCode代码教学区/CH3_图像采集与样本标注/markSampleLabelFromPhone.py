@@ -14,9 +14,9 @@ from  ADBHelper import ADBHelper
 
 
 # 图片保存路径 使用前先创建此文件夹/更新此参数
-save_path = "./samples/label/"
+save_path = "./label/"
 # 样本标注信息文件名 使用前先创建此文件/更新此参数
-label_filename = "./samples/label/labels.txt"
+label_filename = "./label/labels.txt"
 
 
 slabel = SampleLabel(save_path, label_filename)

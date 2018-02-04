@@ -109,7 +109,7 @@ class SampleLabel:
             self.printProcessOnCanvas("step-1  you need to mark next box center.") 
     
         elif self.mp == MP_MARKED_CBOX:
-            self.printProcessOnCanvas("step-2 mark done, save (s) or cancel (c)")
+            self.printProcessOnCanvas("step-2 mark done, save (s) or cancel (u)")
         
         cv2.imshow(self.winname, self.canvas)
         
