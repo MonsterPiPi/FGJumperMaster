@@ -68,7 +68,8 @@ def updateCircleRadius(x):
 # 创建一个画布，并绑定窗口和鼠标回调函数
 
 img = np.ones((512,512,3), np.uint8)
-img[:] = (255, 255, 255)
+# img[:] = (255, 255, 255)
+img[:] = (0, 0, 0)
 
 # 用于预览画笔的颜色
 colorPreviewImg = np.ones((100, 100, 3), np.uint8)

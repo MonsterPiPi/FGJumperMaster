@@ -114,7 +114,7 @@ class FGVisionUtil:
         return ncolor
     
     @staticmethod
-    def contours_filter(contours, minWidth=None, minHeight=None, minArea=None):
+    def contours_filter(contours, minWidth=None, maxWidth=None, minHeight=None, maxHeight=None, minArea=None):
         '''
             contours筛选器
         '''    
@@ -130,7 +130,11 @@ class FGVisionUtil:
 
             if minWidth and width < minWidth:
                 continue
+            if maxWidth and width > maxWidth:
+                continue
             if minHeight and height < minHeight:
+                continue
+            if maxHeight and height > maxHeight:
                 continue
             if minArea and area < minArea:
                 continue

@@ -6,7 +6,8 @@ import numpy as np
 import cv2
 
 # 读入图片
-img = cv2.imread('little_chess.png')
+# img = cv2.imread('little_chess.png')
+img = cv2.imread('screenshot3.png')
 if img is None:
     print("图片读入失败, 请检查图片路径及文件名")
     exit()
@@ -22,7 +23,7 @@ bin_win  = 4
 # 设定统计窗口bins的总数
 bin_num = int(256/bin_win)
 # 控制画布的窗口x坐标的稀疏程度. 最密集就设定xticks_win=1
-xticks_win = 2
+xticks_win = 5
 
 for cidx, color in enumerate(bgrColor):
     # cidx channel 序号

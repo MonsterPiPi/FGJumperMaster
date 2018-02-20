@@ -12,7 +12,8 @@ import numpy as np
 import cv2
 
 
-img = cv2.imread('little_chess.png')
+# img = cv2.imread('little_chess.png')
+img = cv2.imread('dao_roi.png')
 if img is None:
     print("图片读入失败")
     exit()

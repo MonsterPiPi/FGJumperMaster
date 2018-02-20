@@ -9,9 +9,9 @@ img_gray = cv2.imread('cat.jpg', cv2.IMREAD_GRAYSCALE)
 # 导入一张图片  cv2.IMREAD_UNCHANGED = -1 包括 alpha透明度通道 
 img_alpha = cv2.imread('cat.jpg', cv2.IMREAD_UNCHANGED)
 
-# 创建一个名字叫做 image_win的窗口 窗口可拉伸
+# 创建一个名字叫做 image_color的窗口 窗口可拉伸
 cv2.namedWindow('image_color', cv2.WINDOW_NORMAL)
-# 在名字叫做 image_win的窗口下展示图像 
+# 在名字叫做 image_color 的窗口下展示图像 
 cv2.imshow('image_color',img_color)
 
 cv2.namedWindow('image_grayscale', cv2.WINDOW_NORMAL)

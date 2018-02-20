@@ -6,6 +6,7 @@ import numpy as np
 import cv2
 
 img_path = './screenshot.png'
+
 # Read image
 img = cv2.imread(img_path)
 
@@ -29,5 +30,6 @@ imCrop = img[y : y+h, x:x+w]
 
 # Display cropped image
 cv2.imshow("image_roi", imCrop)
+
 cv2.imwrite("image_roi.png", imCrop)
 cv2.waitKey(0)

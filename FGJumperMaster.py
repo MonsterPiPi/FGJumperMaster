@@ -157,6 +157,7 @@ class FGJumperMaster():
         
         boxes = []
 
+        
         for c in contours:
             x, y, w, h = cv2.boundingRect(c)
             boxes.append((x, y, w, h))
