@@ -4,6 +4,7 @@ import numpy as np
 
 import matplotlib.pyplot as plt
 import math
+import random
 
 class FGVisionUtil:
     '''
@@ -175,3 +176,67 @@ class FGVisionUtil:
         (x2, y2) = pt2
 
         return math.sqrt(math.pow((x2 - x1), 2) + math.pow((y2 - y1), 2))
+    
+    @staticmethod
+    def fitBGRBValue(rgb_value, addWeight=0):
+        '''
+            rgb值 添加或者减去一个值，并确保数值范围在合理区间内 0 - 255
+        '''
+        MIN_VALUE = 0
+        MAX_VALUE = 255
+        for i in range(len(rgb_value)):
+            if rgb_value[i] + addWeight < MIN_VALUE:
+                rgb_value[i] = MIN_VALUE
+            elif rgb_value[i] + addWeight > MAX_VALUE:
+                rgb_value[i] = MAX_VALUE
+            else:
+                rgb_value[i] += addWeight
+        return rgb_value
+    
+    @staticmethod
+    def findCurveBoundary(array, start, win_size=1, zero_threshold=0, offset=(0,0)):
+        '''
+            给定一个切入点， 获取该点所在颜色分布
+        '''
+        bin_num = len(array)
+        leftb = start
+        rightb = start
+        while leftb >= 0 and array[leftb] > zero_threshold:
+            leftb -= 1
+        
+        while rightb < bin_num and array[rightb] > zero_threshold:
+            rightb += 1
+
+        return (max(0, leftb*win_size+offset[0]), min(255, rightb*win_size+offset[1]))
+    
+    @staticmethod
+    def getMaxCurveBoundary(array, win_size=4,zero_threshold=0, offset=(0,0)):
+        '''
+            找到背景色的边界， 默认占比最大的颜色分布为背景色的颜色分布
+        '''
+        segments = []
+        bin_num = len(array)
+
+        binIdx = 0
+        while binIdx < bin_num:
+            if array[binIdx] < zero_threshold:
+                #print('next %d'%(binIdx))
+                pass
+            else:
+                # 找到一个区域
+                segment = [binIdx, binIdx, array[binIdx]]
+                binIdx += 1
+                while binIdx < bin_num and array[binIdx] > zero_threshold:
+                    segment[1] = binIdx
+                    segment[2] += array[binIdx]
+                    binIdx += 1
+                segments.append(segment)           
+            binIdx += 1
+        
+        # 从segments列表中寻找面积最大的（segment[2]）
+        max_segment = max(segments, key=lambda s:s[2])
+        return (max(0,max_segment[0]*win_size+offset[0]), min(255,max_segment[1]*win_size+offset[1]))
+
+    @staticmethod
+    def generateRandomColor():
+        return (random.randint(0,255), random.randint(0,255), random.randint(0,255))

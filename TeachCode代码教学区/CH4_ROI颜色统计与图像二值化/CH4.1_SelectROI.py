@@ -5,7 +5,7 @@ c键 撤销选择
 import numpy as np
 import cv2
 
-img_path = './screenshot.png'
+img_path = './screenshot2.png'
 
 # Read image
 img = cv2.imread(img_path)
