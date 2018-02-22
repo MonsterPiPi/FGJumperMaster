@@ -9,10 +9,8 @@ import random
 class FGVisionUtil:
     '''
         凡哥的机器视觉工具箱
-
+        封装了一些常用的功能
     '''
-
-
     @staticmethod
     def cal_rgb_margin(img):
         '''
@@ -117,7 +115,7 @@ class FGVisionUtil:
     @staticmethod
     def contours_filter(contours, minWidth=None, maxWidth=None, minHeight=None, maxHeight=None, minArea=None):
         '''
-            contours筛选器
+            contours筛选器  通过宽度高度面积 过滤轮廓
         '''    
         newCntList = []
 
@@ -170,7 +168,7 @@ class FGVisionUtil:
     @staticmethod
     def cal_distance(pt1, pt2):
         '''
-            获取棋子与下一跳盒子的距离
+            给定两个点， 计算两者的距离
         '''
         (x1, y1) = pt1
         (x2, y2) = pt2
@@ -239,4 +237,7 @@ class FGVisionUtil:
 
     @staticmethod
     def generateRandomColor():
+        '''
+            生成一个随机颜色
+        '''
         return (random.randint(0,255), random.randint(0,255), random.randint(0,255))

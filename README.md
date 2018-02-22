@@ -1,191 +1,361 @@
 #凡哥带你玩转OpenCV之跳一跳小程序
 
 
-![output](http://image.myfange.com/jumpmaster_visualization.png-fg)
-![output_details.png](http://image.myfange.com/output_details.png-fg)
-
 
 ## 前言
 
-看到之前那么多同学做出来自己的跳一跳的物理外挂， 凡哥也忍不住想自己动手做一个。
+历经1个月的准备，凡哥写出了稳定的跳一跳自动运行脚本，可以稳定地识别下一跳平面的边缘点，分数轻松破万。
 
-终于， 花了好几天的时间做出来了自己的（相对）稳定版本的跳一跳opencv识别程序。
+同时凡哥也编写了干货满满的**凡哥带你玩转OpenCV之跳一跳主题教程 .**  在凡哥的公司网站上有试读教程。[www.myfange.com](www.myfange.com)
 
+![opencv jump course](http://b316.photo.store.qq.com/psb?/V109f8591dRph7/nHu2BEnSweKyjOVJQGyWqb9ARt1AbpitANI8PtDs84c!/b/dDwBAAAAAAAA&bo=wAMcAgAAAAAREPo!&rf=viewer_311)
 
+实际上， 我们做的这个稳定的跳一跳图像识别程序， 用到的都是**基础的图像处理方法**。非常传统，这些个简单的几何体，还不至于劳烦人工智能深度学习。
 
-凡哥为了**挑战自己**， 采用的是摄像头采集画面。用**USB摄像头**拍摄画面， 通过`opencv`的videocapture，获取图像， 然后使用`opencv`进行图像处理。
+**基本上，所有涉及的函数，凡哥都已经在课程中讲解过了。** 所以，你直接阅读凡哥写的代码会非常容易。
 
-为什么说是挑战自己呢？ 首先摄像头采集的画面， 受到光照的影响， 另外还有镜头本身的畸变， 等等。
+在这篇文章里，还提到了实现哪部分的代码， 需要阅读凡哥的教程章节号， 方便大家查阅。
 
-所以变相地给自己添加了很多工作量， 但是从学习的角度， 是很棒的一种体验。
 
 
+## 效果展示
 
-凡哥做这件事情一方面是想尝试一下知识付费的模式, 另一方面是想教授大家学习计算机视觉, 总是, 被人认可,被人信任是一件很幸福的事情. 感谢大家的支持.
 
 
-## 注意事项
+![2018-02-22-17-03-19-081616.png](http://image.myfange.com/2018-02-22-17-03-19-081616-mark.png-fg)
 
 
 
-请不要问我如何在windows下运行`python`的程序, 如何在`	windows`下编译opencv, 使用什么IDE的问题, 因为凡哥本身桌面系统使用的是Linux, 所以对windows不是很熟悉. 相关的问题, 大家可以在群里相互交流.
 
-另外, 尽量别私聊我, **凡哥想花更多的时间为大家提供更优质的教程.**
 
+## 识别过程与原理介绍
 
 
-教程的文章, 部分我会放在我的个人网站上, 同时也有部分离线文档. 
 
-所有教程都需要离线文档的同学, 请自行将网页另存为`pdf` .  凡哥的个人网站为大家创建了非常好的阅读体验, 请在PC下浏览学习.
+### 步骤1: 棋子
 
+棋子的识别想对比较容易。首先利用**SelectROI** 截取棋子的图片， 用于色彩统计。
 
+> SelectROI 截取图片的部分区域， 凡哥在**CH4.1_SelectROI区域选择与图像裁剪** 讲过了哦。
 
-请遵守学习秩序, 将文明有礼貌. 对于扰乱教学秩序的同学, 会推群处理.
+![little_chess.png](http://image.myfange.com/little_chess.png-bk)
 
+首先将BGR格式的图片转换为HSV色彩空间。
 
+```python
+# 先转换为HSV格式的图片
+img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+```
 
-**考虑到大多数同学正在准备期末考试【凡哥带你玩转OpenCV小班精品课第一期】的学习周期由原定的30天延长为44天, 从 2018年1月16日 至 2018年2月28日, 请及时保存群共享里的教学文件.**
+> 颜色空间转换(cvtColor)的详细使用方法见 **CH1.2_通过Matplotlib展示图片**
 
+根据对hsv颜色空间下棋子的颜色分布的观察：
 
+> 颜色分布图的绘制见 **CH4.2_颜色统计与分布曲线绘制** 
 
-## 课程内容
+![little_chess_hsv_stat.png](http://image.myfange.com/little_chess_hsv_stat.png-fg)
 
-* 在Ubuntu下配置OpenCV开发环境
-* OpenCV 教程
-    - 第一章  图片读入与HighGUI 初步
 
-    - 第二章  图形绘制与简易上位机制作
 
-    - 第三章  读入视频与半自动跳一跳上位机
+* **H通道** 代表颜色  ，用蓝色曲线绘制 
+* **S通道** 代表色彩饱和度， 用绿色曲线绘制
+* **V通道** 代表亮度 ， 用红色曲线绘制
 
-    - 第四章  ROI颜色统计与图像二值化
+观察到分布之后， 可以作为先验知识，写在代码里。
 
-    - 第五章  连通域检索
+```python
+# 阈值下界
+lowerb = (104, 33, 58)
+# 阈值上界
+upperb = (136, 121, 104)
+```
 
-    - 第六章  训练HaarCascade模型
-* 【番外篇】物理外挂之MicroPython实现方案
-  注：教学内容结合跳一跳小程序实例，项目式驱动
+有了上界与下界之后，就可以将图片进行二值化.
 
-## 授课形式
+```python
+mask = cv2.inRange(img_hsv, lowerb, upperb)
+```
 
-* QQ群小班授课
-* 每日教程文档 + 操作视频演示
-* 课后练习
-* 作业批改
-* 有问必答
+> 图像二值化（inRange)  见教程 **CH4.3_图像全局二值化与可视化调参-凡哥带你玩转OpenCV**
 
-opencv的教程会陆续发布.
 
-为了照顾,学习速度超级快的大牛, 凡哥会将工程文件放到群共享里,  码神们请自行浏览, 看不懂的地方, 截图给我, 我会在教程中说明.
 
-对于初学者, 还是建议大家从基础一点点来.
+接下来我们在图像中寻找**固定宽高范围**的矩形区域。
 
-## 课程福利
-* 配好的VitualBox虚拟机，内含跳一跳源代码，直接上手，零配置
+> 轮廓的外接矩形寻找见教程 **CH5.2_轮廓的外接矩形-凡哥带你玩转OpenCV**
 
-* 做作业赢红包
 
-* 赠送【番外篇】物理外挂之MicroPython实现方案
 
-* 学期末参与抽奖
+![20180222_demo02_bin_chess.png](http://image.myfange.com/20180222_demo02_bin_chess.png-fg)
 
-## 课程售价
-第一期尝鲜价 24元 （机不可失，失不再来)
 
-## 报名方式
-加QQ（244561792），转红包 ，拉你入群
 
-## 开发环境
+如果找到的话，就可以确定棋子的底部中心， 如上图红点所标注。
 
+> 图片的标注与几何图形绘制请参见第二章
+>
+> **CH2.3_几何图像绘制与文字绘制-凡哥带你玩转opencv**
 
+如果找不到的话， 或者图像中存在多个满足宽高要求的连通域， 我们可以使用**模板匹配Template Matching** 进行进一步检索。
 
-如果你手里有树莓派, 凡哥有配好的现成的开发环境, 作为本次课程学院的福利. 需要的话, @我一下, 我放到群共享里.
+> 模板匹配见 **CH6.1_模板匹配-凡哥带你玩转OpenCV**
 
+![template_match_res](http://image.myfange.com/template_match_res.png-fg)
 
+棋子的识别代码的具体实现见文件：`BlackChess.py`。
 
-* `os` 不限，　凡哥使用的是`linux`, 虚拟机装`Ubuntu`凡哥也会很高兴的.
+### 步骤2: 寻找下一跳平台
 
 
-* `python` 3.6
-* `numpy` 1.13.3
-* `opencv` 3.3.0  我配的树莓派的操作系统有编译好的最新的`3.4.0` 版本
 
+> 为了更好更高效的看懂这部分的代码，对你numpy掌握程度要求比较高．
+>
+> 见教程　[Numpy快速入门-凡哥带你玩转Python科学计算](http://www.myfange.com/p/numpy-quick-start)
 
 
-> 后面, 可能我用到了哪些需要安装的包, 后面我再补充.
 
+首先我们将图片`BGR`三通道， 分别进行Canny算子求得盒子的边缘二值图像，然后将三个通道的边缘图像叠加在一起。
 
+> 你需要了解二值化图片之间的与，或，非等逻辑运算．
+>
+> **CH4.6_二值化逻辑运算-凡哥带你玩转opencv**
 
-## 工程目录说明
+![20180222_demo03.png](http://image.myfange.com/20180222_demo03.png-fg)
 
 
 
-`smaples` 
+接下来我们找到边缘图像中，最顶上的那个轮廓点集合， 如下图中红线标注。
 
-这里存放的是通过USB摄像头采集的原始图片.
+> 轮廓的获取与遍历，请参见教程 **CH5.1_获取边缘点集与绘制-凡哥带你玩转OpenCV**
 
-![sample_raw_01.png](http://image.myfange.com/sample_raw_01.png-fg)
+![find_top_point_and_make_sample.png](http://image.myfange.com/find_top_point_and_make_sample.png-fg)
 
-`samples-roi` 
+然后还要找到最顶上的顶点，与顶点所在的坐标，如下图绿色圆圈处。
 
-文件夹里存放的是原始图片经过裁减后的 (选中对应的ROI, 部分手机屏幕游戏部分的照片)
+> 
 
-![sample_roi_01.png](http://image.myfange.com/sample_roi_01.png-fg)
+![20180222_next_plat_demo03.png](http://image.myfange.com/20180222_next_plat_demo03.png-fg)
 
+在顶点所在的序号分别向左向右延伸， 找到平台的左顶点**left_point**![find_left_point_of_box](http://image.myfange.com/find_left_point_of_box.png-fg)
 
 
-`output` 
 
-这个文件夹存放的是最后输出的样例, 标注好了棋子的位置跟box的中心.
+跟平台右顶点**right_point**
 
-![jumpmaster_visualization](http://image.myfange.com/jumpmaster_visualization.png-fg)
 
-`output`
 
- 这个文件夹存放的是详细版本的输出样例, 可以看到计算过程中的一些中间图像 (mask 罩层等)
+![find_right_point_of_box](/home/scorpion/Desktop/FGJumperMaster/IMG/find_right_point_of_box.png)
 
-![output_details](http://image.myfange.com/output_details.png-fg)
+三点确定一个四边形。 根据平行四边形的特性， 我们可以方便地求出来另外一个点的坐标。
 
+```python
+# 通过平行四边形的定理 获取下方的点
+down_point = (left_point[0]+right_point[0]-top_point[0],left_point[1]+right_point[1]-top_point[1])
+```
 
 
-`代码实验区` 
 
-存放的是写这个工程的时候的实验代码
+四个点确定一个外接矩形区域， 在这个矩形区域内检索小白点。如果存在的话， 这个就是中心。
 
-`FGJumperMster.py`
+![20180222_white_point_demo02.png](http://image.myfange.com/20180222_white_point_demo02.png-fg)
 
-**核心文件** 图像识别的部分都封装在了这个类中.  凡哥起名为 跳一跳大师. 嘿嘿
 
-`FGJumperMasterTest.py`
 
-这个文件是`FGJumperMaster.py`的测试文件. 你可以通过阅读测试程序的代码了解`FGJumperMaster`的使用方式.
+如果不存在的话， 就将左顶点**left_point**与右顶点**right_point** 中心作为平面中心点。
 
-`FGVisionUtil.py`
 
-这里是我写一个一个工具类, 封装了一些图像处理的过程, 自己用这爽, 代码比较整洁.
 
-`SampleCollect.py` 
+平台中心点检索详情见`NextJumpPlat.py`
 
-用于采集图像
 
-![sample_collector.png](http://image.myfange.com/sample_collector.png-fg)
 
-`SampleROI.py`
+### 步骤3: 计算距离并求得按压延时
 
-用于采集图片的局部`ROI` .
+有意思的是延迟与距离并不是完全线形的， 随着距离的变大， 比例因子ratio也在变小。
 
-也就是从samples中的图片到samples-roi的过程.
+$$ ratio = delay / distance$$
 
+所以按照经验，用一条直线来拟合距离跟`ratio`之间的关系。
 
+首先你需要确定两个点. **这两个参考点需要自己调参。**
 
-![sample_roi_generator.png](http://image.myfange.com/sample_roi_generator.png-fg)
+```python
+pt1 = (800, 1.4) # 距离是800像素的时候， ratio是1.4
+pt2 = (300, 1.63) # 距离是300像素的时候， ratio是1.63
+```
 
+给定一个距离**distance**, 先求出来在这条直线上对应**distance** 处的比例因子**ratio**
 
+然后再相乘得到延时时间。
 
+```python
+def distance2time(distance):
+    '''
+        距离与延迟时间不完全成正比，需要添加惩罚项
+    '''
+    print(distance)
+    pt1 = (800, 1.4)
+    pt2 = (300, 1.63)
 
 
-`ThresholdEditorGUI.py`
+    ratio = pt1[1] - (pt1[1]-pt2[1])*(pt1[0]-distance)/(pt1[0]-pt2[0])
+    print("distance: %.2f  ratio=%.2f"%(distance, ratio))
 
-这是凡哥写的利用`opencv` 的`HighGUI`组件实现的阈值调节工具.
+    # 时间必须是整数类型
+    return int(distance * ratio)
+```
 
-![ThresholdEditorGUI](http://image.myfange.com/ThresholdEditorGUI.png-fg)
+
+
+## 准备工作
+
+### 预备0: ADB安装与手机配置
+
+请按照教程　**CH3.1_ADB安装过程与ADB部分指令介绍-凡哥带你玩转OpenCV** 中的要求**安装ADB驱动与打开手机的USB调试功能. **
+
+> 注意： 电脑每次开机都需要重启adb server，手机每次断开连接都需要开启USB调试功与PTP文件传输。 详情见教程CH3.1。
+
+
+
+ADB的功能介绍，命令行使用说明，也在　**CH3.1_ADB安装过程与ADB部分指令介绍-凡哥带你玩转OpenCV**中．
+
+
+
+为了能够在python中执行ADB指令，我们需要借助python的子进程`subprocess` 模块 。
+
+在使用`subprocess` 之前， 你需要补习一些操作系统的基本概念， 例如什么是管道什么是进程等等。
+
+(见教程**CH3.2 补习操作系统中的基本概念**)
+
+
+
+接下来你需要学习`subprocess` 模块使用，见教程**CH3.3_subprocess模块的使用说明**
+
+我们用python对我们需要用到的几个功能 **截图** 与**模拟点击** 做了一个封装。 在教程**CH3.3_subprocess模块的使用说明** 也有详细说明。
+
+代码见`ADBHelper.py`
+
+
+
+### 预备1: 设定手机屏幕分辨率
+
+修改`AutoJump.py` 文件中
+
+```python
+# 初始话ADBHelper 传入手机分辨率
+adb = ADBHelper(1080, 1920)
+```
+
+
+
+
+
+### 预备2: 替换模板文件
+
+之前凡哥在**CH6.1模板匹配** 教程中提到过， 模板匹配不具备变尺度的特性， 如果你的手机分辨率跟我不相同， 就需要手机截图后，用**SelectROI**重新选取。
+
+替换`little_chess.png`
+
+![little_chess.png](http://image.myfange.com/little_chess.png-bk)
+
+### 预备3: Debug模式
+
+你可以在`AutoJump.py` 中开启或者关闭Debug模式。
+
+
+
+### 预备4: 开发环境的搭建
+
+
+
+**开发环境详细参数**
+
+- `os` 不限，推荐使用linux（ubuntu，树莓派等）
+
+
+- `python` 3.6
+
+- `numpy` 1.13.3
+
+- `opencv` 3.3.0 
+
+  > 凡哥配的树莓派的操作系统有编译好的最新的`3.4.0` 版本
+
+**如果你已经配置好了linux开发环境并安装好了opencv， 请跳过此部分**
+
+
+
+#### 虚拟机镜像
+
+凡哥帮大家配好了带opencv运行环境的Ubuntu跟树莓派两个版本的操作系统。
+
+**镜像文件均可以在我们的课程群里下载。** 树莓派的系统直接拷贝到SD卡中即可。
+
+凡哥配好的Ubuntu虚拟机，你也可以一键导入VirtualBox。
+
+详情见视频教程：
+
+[视频教程-第四节_使用Virtualbox导入凡哥配置好开发环境的虚拟主机](https://www.bilibili.com/video/av18569702/#page=4)
+
+![96_20180117213930](http://image.myfange.com/VisualBox%E6%8B%93%E5%B1%95%E7%9A%84%E4%B8%8B%E8%BD%BD%E4%B8%8E%E5%AE%89%E8%A3%85%E4%B8%8EUSB%E6%91%84%E5%83%8F%E5%A4%B4%E8%AF%BB%E5%8F%96_20180117213930.JPG-fg)
+
+#### Linux配置教程
+
+如果你想自己配置的话， 自然也ok， 凡哥帮大家写好了详细的Ubuntu安装与配置说明。详细步骤放在了凡哥的教学网站上 [www.myfange.com](www.myfange.com)
+
+**建议大家在PC上浏览教程（PC上，bilibili的播放器才能正常使用）**
+
+
+
+[在VirtualBox上安装Ubutu16-04的虚拟机-凡哥带你配置OpenCV开发环境](http://www.myfange.com/p/install-ubuntu-in-virtualbox)
+
+> 在本次教程里, 凡哥带大家安装VirtualBox, 介绍了一下VirtualBox与VMWare的不同之处. 接下来教大家如何创建一个虚拟机, 如何分配物理资源等. 然后我们挂载Ubuntu16.04的镜像, 凡哥逐步教大家安装Ubuntu.课程最后, 你可以进入到你自己安装的Ubuntu桌面, 是不是很有成就感.
+
+
+
+[在Ubuntu下安装Anaconda科学计算包并运行python程序-凡哥带你配置OpenCV开发环境](http://www.myfange.com/p/install-anaconda-on-ubuntu)
+
+> 在这节课, 凡哥带大家从Anaconda的官网下载sh安装文件, 并在本地运行它. 安装完成之后, 需要添加环境变量PATH到.bashrc下, 接下来我们测试一下anaconda是否安装成功. 最后, 凡哥给大家演示了, 安装Anaconda之后运行IPython与Jupyter Notebook 交互式编程环境.
+
+
+
+[Ubuntu下利用Anaconda安装opencv-凡哥带你配置OpenCV开发环境](http://www.myfange.com/p/install-opencv-on-ubuntu-by-anaconda)
+
+> 这篇文章一来教大家如何使用anaconda 来搜索包， 添加channel , 二来也演示配置opencv开发环境的过程。 我们安装来自conda-forge , 我们选择的opencv版本是opencv=3.3.0. 另外, 当你安装完anaconda之后, 管理python包的工具就从pip转变为conda 文章写的比较仓促, 为anaconda指令讲解不是很详细, 请多包涵.
+
+
+
+[在VirtualBox虚拟机里使用Opencv获取USB摄像头的图像-凡哥带你配置OpenCV开发环境](http://www.myfange.com/p/virtualbox-opencv-usb-camera-video-capture)
+
+> 在这一讲里， 凡哥将会带大家在virtualbox中运行opencv的程序， 并且读取usb摄像头的图像。 在运行程序之前, 你需要在VirtualBox上安装对应的拓展包. 然后, 凡哥还详细讲解了opencv中调用VideoCapture获取图像并展示在窗口的程序. 通过这篇文章的操作, 你可以检测你的USB设备是否可以在虚拟机里正常读取, 另外, 测试你配置的opencv开发环境是否正常.
+
+
+
+
+
+
+
+## 运行代码
+
+进入工程根目录 ，并执行指令。
+
+```bash
+python AutoJump.py
+```
+
+
+
+
+
+## 联系凡哥
+
+**OpenCV广场群**  627671914
+
+![广场群](http://image.myfange.com/0222_2.jpg-bk)
+
+
+
+**VIP教学群 **  592748767
+
+![VIP教学群](http://image.myfange.com/0222_1.jpg-bk)
+
