@@ -1,6 +1,6 @@
 '''
     跳一跳 自动跳跃程序
-
+    工程的执行入口
     TODO 程序结束的判断 再玩一局
 '''
 import cv2
@@ -38,15 +38,17 @@ while True:
     # 获取棋子的位置
     chess_posi = getChessFootPosi(img)
     # 获取下一跳中心的位置
-    center_posi,canvas = getNextJumpPlatCenter(img)
-    
+    center_posi,canvas = getNextJumpPlatCenter(img,debug=True)
+    # 绘制底座位置
+    cv2.circle(canvas, chess_posi, 10, (255,255,255), thickness=-1)
+    cv2.imshow('NextCenterFinder', canvas)
     
     
     # 计算距离
     distance = vutil.cal_distance(chess_posi, center_posi)
     # 折算延迟
     delay = distance2time(distance)
-
+    # 按压手机屏幕
     rc = ADBHelper.pressOnScreen((500, 500), delay=delay)
     if rc:
         print("成功点击 并延时 3s")
@@ -54,16 +56,13 @@ while True:
             # 保存日志  注意需要创建文件路径
             img_name =  f"{datetime.datetime.now():%Y-%m-%d-%H-%M-%S-%f.png}"
             cv2.imwrite('./output/AutoJump/screenshot/'+img_name, img)
-            # 绘制底座位置
-            cv2.circle(canvas, chess_posi, 10, (255,255,255), thickness=-1)
-            cv2.imshow('NextCenterFinder', canvas)
             cv2.imwrite('./output/AutoJump/log/'+img_name, canvas)
 
-
+    # 等待3S
     key = cv2.waitKey(3000)
 
     if key == ord('q'):
         print("Exit")
         break
-
+# 关闭所有窗口
 cv2.destroyAllWindows()

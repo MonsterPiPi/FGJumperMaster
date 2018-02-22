@@ -76,13 +76,7 @@ def getChessFootByColor(img):
 
     
     contours = vutils.contours_filter(contours, minHeight=MIN_CHESS_HEIGHT, maxHeight=MAX_CHESS_HEIGHT, minWidth=MIN_CHESS_WIDTH, maxWidth=MAX_CHESS_WIDTH)
-    cv2.imwrite('chess_mask.png', chess_mask)
 
-    '''
-    if len(contours) == 0:
-        print("游戏结束")
-        exit()
-    '''
     if len(contours) == 1:
         # 刚好匹配到目标棋子
         (x, y, w, h)= cv2.boundingRect(contours[0])
@@ -94,7 +88,7 @@ def getChessFootByColor(img):
 def getChessFootPosi(img):
     '''
         寻找棋子chess的位置
-    '''    
+    '''
     posi = getChessFootByColor(img)
     # 先使用颜色阈值方案
     if posi is not None:
@@ -102,3 +96,25 @@ def getChessFootPosi(img):
     else:
         # 备选方案使用模板匹配
         return getChessFootByTempMatch(img)
+
+
+if __name__=='__main__':
+    if __name__ == '__main__':
+        from glob import glob
+    # 待测试的游戏截图， 否放置在./input文件夹下
+    img_paths = glob('./input/*.png')
+
+    for path in img_paths:
+        img_name = path.split('/')[-1]
+
+        img = cv2.imread(path)
+        
+        canvas = img.copy()
+
+        chess_mask = getChessFootMask(img)
+        canvas = cv2.cvtColor(chess_mask, cv2.COLOR_GRAY2BGR)
+
+        chess_posi = getChessFootPosi(img)
+        cv2.circle(canvas, chess_posi, 10, (0,0, 255), thickness=-1)
+
+        cv2.imwrite('./output/chess/'+img_name, np.hstack((img, canvas)))

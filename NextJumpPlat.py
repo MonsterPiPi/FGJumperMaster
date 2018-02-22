@@ -7,59 +7,12 @@ from FGVisonUtil import FGVisionUtil as vutils
 from BlackChess import getChessFootMask
 import math
 
-'''
-放弃颜色阈值的方案
-
-def getBackBoundary(img, win_size=1):
-    # 获取背景图片的 HSV边界阈值
-    
-    # 设定采样窗口
-    back_img = np.hstack((img[:,0:50], img[:,img.shape[1]-50:img.shape[1]])) # 背景取样区域 左边宽度为50的长条区域
-    
-    back_img = cv2.cvtColor(back_img, cv2.COLOR_BGR2HSV)
-    lowerb = np.uint8([0, 0, 0])
-    upperb = np.uint8([255, 255, 255])
-    bin_num = 256 / win_size
-    for cidx in range(3):
-        cHist = cv2.calcHist([back_img], [cidx], None, [bin_num], [0, 256])
-        (leftIdx, rightIdx) = vutils.getMaxCurveBoundary(cHist, win_size=win_size,zero_threshold=0, offset=(0,0))
-        lowerb[cidx] = leftIdx
-        upperb[cidx] = rightIdx
-    return (lowerb, upperb)
-
-
-def getBackGroundMask(img):
-    
-    img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-    # 背景颜色的阈值
-    (lowerb, upperb) = getBackBoundary(img, win_size=1)
-    # 获取背景
-    back_mask = cv2.inRange(img_hsv, lowerb, upperb)
-
-    # 获取阴影的阈值
-    lowerb[2] -= 80
-    upperb[2] -= 70
-    # 将阈值放缩到合适的区间内
-    lowerb = vutils.fitBGRBValue(lowerb)
-    upperb = vutils.fitBGRBValue(upperb)
-    shadow_mask = cv2.inRange(img_hsv, lowerb, upperb)
-
-    # 二者合并
-    mask = cv2.bitwise_or(back_mask, shadow_mask)
-    
-    # 涂抹顶部跟底部的区域
-
-    wdith, height = mask.shape[::-1]
-    mask[0: int(height/4),:] = 255
-    mask[int(3*height/4): height,:] = 255
-    # back_mask = cv2.bitwise_or(back_mask, shadow_mask)
-    
-    cv2.imwrite('test_shadow_mask.png', shadow_mask)
-    return mask
-'''
 
 def getCannyEdge(img):
-    # imgGray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    '''
+    获取图片rgb三个通道的边缘图像，并叠加在一起
+    '''
+    # sobel算子的尺寸
     sobel_size = 5
     threshold1 = 150
     threshold2 = 100
@@ -68,12 +21,13 @@ def getCannyEdge(img):
     edgeG = cv2.Canny(img[:,:,1], threshold1, threshold2, apertureSize=sobel_size)
     edgeR = cv2.Canny(img[:,:,2], threshold1, threshold2, apertureSize=sobel_size)
 
+    # 边缘图像叠加
     edge = cv2.bitwise_or(cv2.bitwise_or(edgeB, edgeG), edgeR)
     
-    # 抹掉小人
+    # 抹掉棋子的部分
     chess_mask = getChessFootMask(img)
     edge = cv2.bitwise_and(edge, cv2.bitwise_not(chess_mask))
-
+    # 去除截图上下1/4处图像的边界
     height, width = edge.shape
     edge[0:int(height/4)] = 0
     edge[int(3*height/4):] = 0
@@ -81,7 +35,7 @@ def getCannyEdge(img):
 
 def isNextPoint(cur_pt, next_pt, x_direction=-1):
     '''
-        拓展下一个点
+        判断是否为下一个方向下的点
         x_direction = -1 向左拓展
         x_direction = =1 向右拓展
     '''
@@ -99,6 +53,7 @@ def isNextPoint(cur_pt, next_pt, x_direction=-1):
 
 def isInShadow(refer_backcolor, hsv_value):
     '''
+    判断像素hsv_value 是否为阴影像素
         refer_backcolor 为参考背景色(hsv 格式)
         hsv_value 用来验证是否是阴影
     '''
@@ -108,8 +63,7 @@ def isInShadow(refer_backcolor, hsv_value):
     # 验证S通道
     if abs(int(refer_backcolor[1])-int(hsv_value[1])) > 5:
         return False
-
-
+    # 判断V亮度差
     delta_s =  int(refer_backcolor[2])- int(hsv_value[2])
     if delta_s > 70 and delta_s < 80:
         return True
@@ -129,9 +83,12 @@ def getLittleWhitePointCenter(img, offset=(0,0), debug=False):
     contours = vutils.contours_filter(contours, minWidth=35, maxWidth=45, minHeight=20, maxHeight=30)
     
     if len(contours) != 1:
+        if debug:
+            # 没有发现小白块 或者发现了多个
+            return (None, np.hstack((img, cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR))))
         return None
     
-    
+    # 确定白点的中心点
     (x, y, w, h) = cv2.boundingRect(contours[0])
     cx = int(x+w/2+offset[0])
     cy = int(y+h/2+offset[1])
@@ -140,7 +97,6 @@ def getLittleWhitePointCenter(img, offset=(0,0), debug=False):
         return (cx, cy)
     else:
         canvas = img.copy()
-        print("w: {}, h: {}".format(w, h))
         cv2.rectangle(canvas, (x,y), (x+w, y+h), (0,0,255), thickness=4)
         return (cx, cy), canvas
 
@@ -153,10 +109,10 @@ def adjust_points(top_point, left_point, right_point):
     x1,y1 = top_point
     x2,y2 = left_point
     x3,y3 = right_point
-
+    # 计算左右两点到顶点的距离
     left_len = math.sqrt(math.pow(x1-x2,2) + math.pow(y1-y2, 2))
     right_len = math.sqrt(math.pow(x1-x3,2) + math.pow(y1-y3, 2))
-    
+    # 根据比例判断是否超出正常范围
     ratio = left_len / right_len
     if ratio < 1/3:
         # 左边太短， 调整left_point
@@ -166,22 +122,24 @@ def adjust_points(top_point, left_point, right_point):
         right_point = (2*top_point[0]-left_point[0], left_point[1])
 
     return (top_point, left_point, right_point)
+
 def getNextJumpPlatCenter(img, debug=False):
     '''
         获取下一跳平台的中心
     '''
     # 声明画布
     canvas = img.copy()
-
+    # 获取边缘图像
     edge = getCannyEdge(img)
     # 获取边缘信息
     image, contours, hierarchy = cv2.findContours(image=edge, mode=cv2.RETR_EXTERNAL, method=cv2.CHAIN_APPROX_SIMPLE)
+    # 对轮廓点集进行过滤
     contours = vutils.contours_filter(contours, minWidth=50, minHeight=50)
     
-    # 找到最大
+    # 找到最高顶点所在轮廓
     next_box_cnt = min(contours, key=lambda cnt: tuple(cnt[cnt[:,:,1].argmin()][0])[1])
     
-    # 顶点序号
+    # 获取顶点序号
     top_point_idx = next_box_cnt[:,:,1].argmin()
     # 顶点
     top_point = tuple(next_box_cnt[top_point_idx,0,:2])
@@ -190,8 +148,10 @@ def getNextJumpPlatCenter(img, debug=False):
     img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     refer_back_color = img_hsv[top_point[1], top_point[0]]
 
+    # 分别向左向右找到边界点
     left_idx_itr = 1
     right_idx_itr = -1
+    # 校正方向对应的序号叠加
     if next_box_cnt[top_point_idx+left_idx_itr,0, 0] > top_point[0]:
         left_idx_itr, right_idx_itr = right_idx_itr, left_idx_itr 
 
@@ -205,8 +165,9 @@ def getNextJumpPlatCenter(img, debug=False):
     while True:
         # 当前right point
         right_point = tuple(next_box_cnt[right_pt_idx,0,:2])
+        # 获取下一个右边的点
         next = tuple(next_box_cnt[right_pt_idx+right_idx_itr,0,:2])
-        
+        # 判断这个点是否可以延伸
         if not isNextPoint(right_point, next, x_direction=1):
             break
         elif isInShadow(refer_back_color, img_hsv[next[1]+5, next[0]]):
@@ -228,10 +189,10 @@ def getNextJumpPlatCenter(img, debug=False):
         left_pt_idx += left_idx_itr
     # 调整三个点的位置
     (top_point, left_point, right_point) = adjust_points(top_point, left_point, right_point)
+    # 通过平行四边形的定理 获取下方的点
     down_point = (left_point[0]+right_point[0]-top_point[0],left_point[1]+right_point[1]-top_point[1])
 
     # 生成下一跳平台的搜索区域
-    # TODO 检索椭圆形 四边形
     contour = np.array([
         [list(top_point)],
         [list(right_point)],
@@ -244,51 +205,34 @@ def getNextJumpPlatCenter(img, debug=False):
     
     center_point = None
     if res_pt is not None:
-        # print("find white point")
-        # print(res_pt)
+        # 如果存在小白点 就直接作为中心点
         center_point = res_pt
     else:
         # 取left_point与right_point 中间处作为中心点
         cx = int((left_point[0]+right_point[0])/2)
         cy = int((left_point[1]+right_point[1])/2)
         center_point = (cx, cy)
-
+    
+    # 设定圆圈半径
+    pt_radius = 10
+    # 绘制下一跳中心点
+    cv2.circle(canvas, center_point, pt_radius, (45,100,255), thickness=-1)
     if debug == True:
-        cv2.drawContours(image=canvas, contours=[next_box_cnt], contourIdx=-1, color=(125,125,125), thickness=1)
-        canvas[top_point[1],top_point[0]] = [0,0,255]
-
-        canvas[left_point[1],left_point[0]] = [0, 255, 0]
-        canvas[right_point[1], right_point[0]] = [255, 0, 0]
-
-        next_right = tuple(next_box_cnt[right_pt_idx+right_idx_itr,0,:2])
-        canvas[next_right[1], next_right[0]] = [0,0,0]
-        next_left = tuple(next_box_cnt[left_pt_idx+left_idx_itr,0,:2])
-        canvas[next_left[1], next_left[0]] = [0,0,0]
-
-        print('LEFT: {}, TOP: {}, RIGHT: {}'.format(left_point, top_point, right_point))
-        print('rect region : {}'.format((x, y, w, h)))
-    else:
-        # 设定圆圈半径
-        pt_radius = 10
+        
         # 绘制轮廓
         cv2.drawContours(image=canvas, contours=[next_box_cnt], contourIdx=-1, color=(0,0,255), thickness=3)
+        # 绘制平行四边形的四个点
         cv2.circle(canvas, top_point, pt_radius, (0, 255, 0), thickness=-1)
         cv2.circle(canvas, left_point, pt_radius, (0, 255, 255), thickness=-1)
         cv2.circle(canvas, right_point, pt_radius, (255, 0, 0), thickness=-1)
         cv2.circle(canvas, down_point, pt_radius, (255,255,0), thickness=-1)
-        # 绘制检索框
-        # x,y,w,h = next_plat_rect
-        # cv2.rectangle(canvas, (x,y), (x+w, y+h), (255,255,255), thickness=2)
-        cv2.circle(canvas, center_point, pt_radius, (45,100,255), thickness=-1)
+        
     
     return center_point,canvas
-    # otsu method  
-    # threshold,imgOtsu = cv2.threshold(imgGray,0,255,cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-    # return imgOtsu
 
 if __name__ == '__main__':
     from glob import glob
-
+    # 待测试的游戏截图， 否放置在./input文件夹下
     img_paths = glob('./input/*.png')
 
     for path in img_paths:
@@ -296,17 +240,13 @@ if __name__ == '__main__':
 
         img = cv2.imread(path)
         
-        
         edge = getCannyEdge(img)
         cv2.imwrite('./output/edge/'+img_name, edge)
         
-        '''
-        white_point_center, canvas = getLittleWhitePointCenter(img)
-        # if white_point_center is not None :
-        cv2.imwrite('./output/mask/white_points/'+img_name, canvas)
-        '''
-        
-        center_point, canvas = getNextJumpPlatCenter(img,debug=False)
-        # print("center: {}".format(center_point))
+        white_point_center, canvas = getLittleWhitePointCenter(img, debug=True)
+        cv2.imwrite('./output/white_points/'+img_name, canvas)
+         
+
+        center_point, canvas = getNextJumpPlatCenter(img,debug=True)
         cv2.imwrite('./output/next_jump_plat/'+img_name, canvas)
         

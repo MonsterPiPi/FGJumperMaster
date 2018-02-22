@@ -102,8 +102,26 @@ ENV/
 # mypy
 .mypy_cache/
 
+# vscode 工程信息
+.vscode
+# 中间的缓存图片
+tmp.png
 
-samples/
-samples_roi/
-output/
-output_details/
+
+!output/AutoJump/log/demo*.png
+!output/AutoJump/screenshot/demo*.png
+!output/chess/demo*.png
+!output/edge/demo*.png
+!output/next_jump_plat/demo*.png
+!input/demo*.png
+
+# 输出文件夹
+output/AutoJump/log/*.png
+output/AutoJump/screenshot/*.png
+output/chess/*.png
+output/edge/*.png
+output/next_jump_plat/*.png
+input/*.png
+
+# 棋子mask日志
+chess_mask.png
