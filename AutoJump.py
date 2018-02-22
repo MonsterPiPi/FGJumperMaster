@@ -16,13 +16,16 @@ def distance2time(distance):
     '''
         距离与延迟时间不完全成正比，需要添加惩罚项
     '''
-    ratio = 2.0
-    # 0.4 -> 
-    w1 = 0.025
-    w2 = 1.5
-    w3 = 1.8
-    # 事件必须是整数类型
-    return int(distance * ratio - w1*math.pow(distance,3/2) + w2*math.pow(distance, 1/2) + w3*math.pow(distance, 1/4))
+    print(distance)
+    pt1 = (800, 1.4)
+    pt2 = (300, 1.63)
+
+
+    ratio = pt1[1] - (pt1[1]-pt2[1])*(pt1[0]-distance)/(pt1[0]-pt2[0])
+    print("distance: %.2f  ratio=%.2f"%(distance, ratio))
+
+    # 时间必须是整数类型
+    return int(distance * ratio)
 
 
 
@@ -58,8 +61,8 @@ while True:
             cv2.imwrite('./output/AutoJump/screenshot/'+img_name, img)
             cv2.imwrite('./output/AutoJump/log/'+img_name, canvas)
 
-    # 等待3S
-    key = cv2.waitKey(3000)
+    # 统一等待2S
+    key = cv2.waitKey(2000)
 
     if key == ord('q'):
         print("Exit")
