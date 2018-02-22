@@ -108,12 +108,12 @@ ENV/
 tmp.png
 
 
-!output/AutoJump/log/demo*.png
-!output/AutoJump/screenshot/demo*.png
-!output/chess/demo*.png
-!output/edge/demo*.png
-!output/next_jump_plat/demo*.png
-!input/demo*.png
+!output/AutoJump/log/demo01.png
+!output/AutoJump/screenshot/demo01.png
+!output/chess/demo01.png
+!output/edge/demo01.png
+!output/next_jump_plat/demo01.png
+!input/demo01.png
 
 # 输出文件夹
 output/AutoJump/log/*.png
