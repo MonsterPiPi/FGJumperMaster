@@ -32,7 +32,7 @@ def getChessFootByTempMatch(img, template=None, offset=(0,-5)):
     # 获取最大匹配与最小匹配的值与坐标
     # 因为采用的匹配方式是 cv2.TM_CCOEFF 所以最大值位置是我们想要的棋子位置
     min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
-
+    
     # 棋子底部中心位置
     (x, y) = max_loc
     (delta_x, delta_y) = offset
@@ -86,7 +86,7 @@ def getChessFootByColor(img):
 def getChessFootPosi(img):
     '''
         寻找棋子chess的位置
-    '''
+    '''    
     posi = getChessFootByColor(img)
     # 先使用颜色阈值方案
     if posi is not None:

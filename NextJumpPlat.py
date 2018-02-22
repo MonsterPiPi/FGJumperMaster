@@ -73,6 +73,10 @@ def getCannyEdge(img):
     # 抹掉小人
     chess_mask = getChessFootMask(img)
     edge = cv2.bitwise_and(edge, cv2.bitwise_not(chess_mask))
+
+    height, width = edge.shape
+    edge[0:int(height/4)] = 0
+    edge[int(3*height/4):] = 0
     return edge
 
 def isNextPoint(cur_pt, next_pt, x_direction=-1):
@@ -172,7 +176,7 @@ def getNextJumpPlatCenter(img, debug=False):
     edge = getCannyEdge(img)
     # 获取边缘信息
     image, contours, hierarchy = cv2.findContours(image=edge, mode=cv2.RETR_EXTERNAL, method=cv2.CHAIN_APPROX_SIMPLE)
-    contours = vutils.contours_filter(contours, minWidth=100, minHeight=100)
+    contours = vutils.contours_filter(contours, minWidth=10, minHeight=10)
     
     # 找到最大
     next_box_cnt = min(contours, key=lambda cnt: tuple(cnt[cnt[:,:,1].argmin()][0])[1])
