@@ -72,9 +72,17 @@ def getChessFootByColor(img):
 
 
     chess_mask = getChessFootMask(img)
-    image, contours, hier = cv2.findContours(chess_mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)    
-    contours = vutils.contours_filter(contours, minHeight=MIN_CHESS_HEIGHT, maxHeight=MAX_CHESS_HEIGHT, minWidth=MIN_CHESS_WIDTH, maxWidth=MAX_CHESS_WIDTH)
+    image, contours, hier = cv2.findContours(chess_mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
     
+    contours = vutils.contours_filter(contours, minHeight=MIN_CHESS_HEIGHT, maxHeight=MAX_CHESS_HEIGHT, minWidth=MIN_CHESS_WIDTH, maxWidth=MAX_CHESS_WIDTH)
+    cv2.imwrite('chess_mask.png', chess_mask)
+
+    '''
+    if len(contours) == 0:
+        print("游戏结束")
+        exit()
+    '''
     if len(contours) == 1:
         # 刚好匹配到目标棋子
         (x, y, w, h)= cv2.boundingRect(contours[0])

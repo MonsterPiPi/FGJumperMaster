@@ -10,18 +10,19 @@ from BlackChess import getChessFootPosi
 from NextJumpPlat import getNextJumpPlatCenter
 from FGVisonUtil import FGVisionUtil as vutil
 import datetime
-
+import math
 
 def distance2time(distance):
     '''
         距离与延迟时间不完全成正比，需要添加惩罚项
     '''
-    ratio = 1.7
+    ratio = 2.0
     # 0.4 -> 
-    punish = 0.00037
-    
+    w1 = 0.025
+    w2 = 1.5
+    w3 = 1.8
     # 事件必须是整数类型
-    return int(distance * ratio - punish*distance*distance)
+    return int(distance * ratio - w1*math.pow(distance,3/2) + w2*math.pow(distance, 1/2) + w3*math.pow(distance, 1/4))
 
 
 
@@ -39,7 +40,7 @@ while True:
     # 获取下一跳中心的位置
     center_posi,canvas = getNextJumpPlatCenter(img)
     
-    cv2.imshow('NextCenterFinder', canvas)
+    
     
     # 计算距离
     distance = vutil.cal_distance(chess_posi, center_posi)
@@ -53,6 +54,9 @@ while True:
             # 保存日志  注意需要创建文件路径
             img_name =  f"{datetime.datetime.now():%Y-%m-%d-%H-%M-%S-%f.png}"
             cv2.imwrite('./output/AutoJump/screenshot/'+img_name, img)
+            # 绘制底座位置
+            cv2.circle(canvas, chess_posi, 10, (255,255,255), thickness=-1)
+            cv2.imshow('NextCenterFinder', canvas)
             cv2.imwrite('./output/AutoJump/log/'+img_name, canvas)
 
 
