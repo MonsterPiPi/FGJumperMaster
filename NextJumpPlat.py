@@ -176,7 +176,7 @@ def getNextJumpPlatCenter(img, debug=False):
     edge = getCannyEdge(img)
     # 获取边缘信息
     image, contours, hierarchy = cv2.findContours(image=edge, mode=cv2.RETR_EXTERNAL, method=cv2.CHAIN_APPROX_SIMPLE)
-    contours = vutils.contours_filter(contours, minWidth=10, minHeight=10)
+    contours = vutils.contours_filter(contours, minWidth=100, minHeight=50)
     
     # 找到最大
     next_box_cnt = min(contours, key=lambda cnt: tuple(cnt[cnt[:,:,1].argmin()][0])[1])
@@ -266,7 +266,7 @@ def getNextJumpPlatCenter(img, debug=False):
         canvas[next_left[1], next_left[0]] = [0,0,0]
 
         print('LEFT: {}, TOP: {}, RIGHT: {}'.format(left_point, top_point, right_point))
-
+        print('rect region : {}'.format((x, y, w, h)))
     else:
         # 设定圆圈半径
         pt_radius = 10
@@ -306,7 +306,7 @@ if __name__ == '__main__':
         cv2.imwrite('./output/mask/white_points/'+img_name, canvas)
         '''
         
-        center_point, canvas = getNextJumpPlatCenter(img,debug=False)
+        center_point, canvas = getNextJumpPlatCenter(img,debug=True)
         # print("center: {}".format(center_point))
         cv2.imwrite('./output/next_jump_plat/'+img_name, canvas)
         

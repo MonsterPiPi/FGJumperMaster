@@ -25,22 +25,19 @@ def distance2time(distance):
 
 
 
-debug = False
-
+debug = True
+# 初始话ADBHelper 传入手机分辨率
 adb = ADBHelper(1080, 1920)
-
+# 声明窗口NextCenterFinder 展示图像处理过程
 cv2.namedWindow('NextCenterFinder', flags=cv2.WINDOW_NORMAL | cv2.WINDOW_KEEPRATIO)
 
 while True:
-
+    # 获取手机截图
     img = ADBHelper.getScreenShotByADB()
     # 获取棋子的位置
     chess_posi = getChessFootPosi(img)
     # 获取下一跳中心的位置
     center_posi,canvas = getNextJumpPlatCenter(img)
-
-    if chess_posi is None or center_posi is None:
-        break
     
     cv2.imshow('NextCenterFinder', canvas)
     
