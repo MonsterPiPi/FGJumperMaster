@@ -110,7 +110,7 @@ def isInShadow(refer_backcolor, hsv_value):
         return False
 
 
-    delta_s =  refer_backcolor[2]- hsv_value[2]
+    delta_s =  int(refer_backcolor[2])- int(hsv_value[2])
     if delta_s > 70 and delta_s < 80:
         return True
     return False
