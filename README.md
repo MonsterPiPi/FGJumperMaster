@@ -139,7 +139,7 @@ mask = cv2.inRange(img_hsv, lowerb, upperb)
 
 
 
-![find_right_point_of_box](/home/scorpion/Desktop/FGJumperMaster/IMG/find_right_point_of_box.png)
+![find_right_point_of_box](http://image.myfange.com/find_right_point_of_box.png-fg)
 
 三点确定一个四边形。 根据平行四边形的特性， 我们可以方便地求出来另外一个点的坐标。
 
@@ -352,7 +352,7 @@ python AutoJump.py
 
 
 
-**VIP会员群 **  592748767
+**VIP会员群**  592748767
 
 ![VIP会员群](http://image.myfange.com/0222_1.jpg-bk)
 
