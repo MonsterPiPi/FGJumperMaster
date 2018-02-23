@@ -4,17 +4,18 @@
 
 ## 前言
 
-历经1个月的准备，凡哥写出了稳定的跳一跳自动运行脚本，可以稳定地识别下一跳平面的边缘点，分数轻松破万。
+历经1个月的准备，凡哥写出了稳定的跳一跳自动运行脚本，可以稳定地识别跳一跳平面的边缘点，分数轻松破万。
 
-同时凡哥也编写了干货满满的**凡哥带你玩转OpenCV之跳一跳主题教程 .**  在凡哥的公司网站上有试读教程。[www.myfange.com](www.myfange.com)
-
+同时凡哥也编写了干货满满的**凡哥带你玩转OpenCV之跳一跳主题教程 .**  在凡哥的公司网站上会陆续更新。[www.myfange.com](www.myfange.com)
+需要完整教程的同学也可加入**OpenCV广场群：627671914**，查看会员制度。 
+ 
 ![opencv jump course](http://b316.photo.store.qq.com/psb?/V109f8591dRph7/nHu2BEnSweKyjOVJQGyWqb9ARt1AbpitANI8PtDs84c!/b/dDwBAAAAAAAA&bo=wAMcAgAAAAAREPo!&rf=viewer_311)
 
-实际上， 我们做的这个稳定的跳一跳图像识别程序， 用到的都是**基础的图像处理方法**。非常传统，这些个简单的几何体，还不至于劳烦人工智能深度学习。
+实际上，我们做的这个稳定的跳一跳图像识别程序，用到的都是**基础的图像处理方法**。非常传统，这些简单的几何体，还不至于劳烦人工智能深度学习。
 
 **基本上，所有涉及的函数，凡哥都已经在课程中讲解过了。** 所以，你直接阅读凡哥写的代码会非常容易。
 
-在这篇文章里，还提到了实现哪部分的代码， 需要阅读凡哥的教程章节号， 方便大家查阅。
+在这篇文章里，还提到了实现哪部分的代码，需要阅读凡哥的教程的章节号，方便大家查阅。
 
 
 
@@ -32,14 +33,12 @@
 
 
 
-### 步骤1: 棋子
+### 步骤1: 利用**SelectROI** 截取棋子的图片，用于色彩统计。
 
-棋子的识别想对比较容易。首先利用**SelectROI** 截取棋子的图片， 用于色彩统计。
-
-> SelectROI 截取图片的部分区域， 凡哥在**CH4.1_SelectROI区域选择与图像裁剪** 讲过了哦。
+> SelectROI 截取图片的部分区域， 见教程**CH4.1_SelectROI区域选择与图像裁剪-凡哥带你玩转OpenCV** 。
 
 ![little_chess.png](http://image.myfange.com/little_chess.png-bk)
-
+ 
 首先将BGR格式的图片转换为HSV色彩空间。
 
 ```python
@@ -47,11 +46,11 @@
 img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 ```
 
-> 颜色空间转换(cvtColor)的详细使用方法见 **CH1.2_通过Matplotlib展示图片**
+> 颜色空间转换(cvtColor)的详细使用方法见 **CH1.2_通过Matplotlib展示图片-凡哥带你玩转OpenCV**
 
 根据对hsv颜色空间下棋子的颜色分布的观察：
 
-> 颜色分布图的绘制见 **CH4.2_颜色统计与分布曲线绘制** 
+> 颜色分布图的绘制见 **CH4.2_颜色统计与分布曲线绘制-凡哥带你玩转OpenCV** 
 
 ![little_chess_hsv_stat.png](http://image.myfange.com/little_chess_hsv_stat.png-fg)
 
@@ -61,8 +60,8 @@ img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 * **S通道** 代表色彩饱和度， 用绿色曲线绘制
 * **V通道** 代表亮度 ， 用红色曲线绘制
 
-观察到分布之后， 可以作为先验知识，写在代码里。
-
+观察到颜色的分布后，记录颜色的上下阈值，写在代码里。
+ 
 ```python
 # 阈值下界
 lowerb = (104, 33, 58)
@@ -82,7 +81,7 @@ mask = cv2.inRange(img_hsv, lowerb, upperb)
 
 接下来我们在图像中寻找**固定宽高范围**的矩形区域。
 
-> 轮廓的外接矩形寻找见教程 **CH5.2_轮廓的外接矩形-凡哥带你玩转OpenCV**
+> 轮廓的外接矩形寻找，见教程 **CH5.2_轮廓的外接矩形-凡哥带你玩转OpenCV**
 
 
 
@@ -92,9 +91,7 @@ mask = cv2.inRange(img_hsv, lowerb, upperb)
 
 如果找到的话，就可以确定棋子的底部中心， 如上图红点所标注。
 
-> 图片的标注与几何图形绘制请参见第二章
->
-> **CH2.3_几何图像绘制与文字绘制-凡哥带你玩转opencv**
+> 图片的标注与几何图形绘制请参见第二章，**CH2.3_几何图像绘制与文字绘制-凡哥带你玩转OpenCV**
 
 如果找不到的话， 或者图像中存在多个满足宽高要求的连通域， 我们可以使用**模板匹配Template Matching** 进行进一步检索。
 
@@ -104,11 +101,11 @@ mask = cv2.inRange(img_hsv, lowerb, upperb)
 
 棋子的识别代码的具体实现见文件：`BlackChess.py`。
 
-### 步骤2: 寻找下一跳平台
+### 步骤2: 寻找跳一跳平台
 
 
 
-> 为了更好更高效的看懂这部分的代码，对你numpy掌握程度要求比较高．
+> 为了更好更高效的看懂这部分的代码，对numpy的掌握程度要求比较高．
 >
 > 见教程　[Numpy快速入门-凡哥带你玩转Python科学计算](http://www.myfange.com/p/numpy-quick-start)
 
@@ -116,15 +113,13 @@ mask = cv2.inRange(img_hsv, lowerb, upperb)
 
 首先我们将图片`BGR`三通道， 分别进行Canny算子求得盒子的边缘二值图像，然后将三个通道的边缘图像叠加在一起。
 
-> 你需要了解二值化图片之间的与，或，非等逻辑运算．
->
-> **CH4.6_二值化逻辑运算-凡哥带你玩转opencv**
+> 你需要了解二值化图片之间的与，或，非等逻辑运算．详见教程**CH4.6_二值化逻辑运算-凡哥带你玩转openCV**
 
 ![20180222_demo03.png](http://image.myfange.com/20180222_demo03.png-fg)
 
 
 
-接下来我们找到边缘图像中，最顶上的那个轮廓点集合， 如下图中红线标注。
+接下来我们找到边缘图像中，最顶上的那个轮廓点集合，如下图中红线标注。
 
 > 轮廓的获取与遍历，请参见教程 **CH5.1_获取边缘点集与绘制-凡哥带你玩转OpenCV**
 
@@ -186,7 +181,7 @@ pt2 = (300, 1.63) # 距离是300像素的时候， ratio是1.63
 
 给定一个距离**distance**, 先求出来在这条直线上对应**distance** 处的比例因子**ratio**
 
-然后再相乘得到延时时间。
+然后再相乘得到延迟时间。
 
 ```python
 def distance2time(distance):
@@ -211,25 +206,27 @@ def distance2time(distance):
 
 ### 预备0: ADB安装与手机配置
 
-请按照教程　**CH3.1_ADB安装过程与ADB部分指令介绍-凡哥带你玩转OpenCV** 中的要求**安装ADB驱动与打开手机的USB调试功能. **
+安装ADB驱动与打开手机的USB调试功能
+ 
+> 见教程　**CH3.1_ADB安装过程与ADB部分指令介绍-凡哥带你玩转OpenCV**
+>
+> 注意： 电脑每次开机都需要重启adb server，手机每次断开连接都需要开启USB调试功能与PTP文件传输。 详情见教程CH3.1。
 
-> 注意： 电脑每次开机都需要重启adb server，手机每次断开连接都需要开启USB调试功与PTP文件传输。 详情见教程CH3.1。
 
-
-
-ADB的功能介绍，命令行使用说明，也在　**CH3.1_ADB安装过程与ADB部分指令介绍-凡哥带你玩转OpenCV**中．
-
+ADB的功能介绍，命令行使用说明，也在**CH3.1_ADB安装过程与ADB部分指令介绍-凡哥带你玩转OpenCV**中．
 
 
 为了能够在python中执行ADB指令，我们需要借助python的子进程`subprocess` 模块 。
 
 在使用`subprocess` 之前， 你需要补习一些操作系统的基本概念， 例如什么是管道什么是进程等等。
 
-(见教程**CH3.2 补习操作系统中的基本概念**)
+> 操作系统基本概念，见教程**CH3.2 补习操作系统中的基本概念-凡哥带你玩转OpenCV**
 
 
 
-接下来你需要学习`subprocess` 模块使用，见教程**CH3.3_subprocess模块的使用说明**
+接下来你需要学习`subprocess` 模块使用
+ 
+> 见教程**CH3.3_subprocess模块的使用说明-凡哥带你玩转OpenCV**
 
 我们用python对我们需要用到的几个功能 **截图** 与**模拟点击** 做了一个封装。 在教程**CH3.3_subprocess模块的使用说明** 也有详细说明。
 
@@ -242,7 +239,7 @@ ADB的功能介绍，命令行使用说明，也在　**CH3.1_ADB安装过程与
 修改`AutoJump.py` 文件中
 
 ```python
-# 初始话ADBHelper 传入手机分辨率
+# 初始化ADBHelper 传入手机分辨率
 adb = ADBHelper(1080, 1920)
 ```
 
@@ -252,9 +249,9 @@ adb = ADBHelper(1080, 1920)
 
 ### 预备2: 替换模板文件
 
-之前凡哥在**CH6.1模板匹配** 教程中提到过， 模板匹配不具备变尺度的特性， 如果你的手机分辨率跟我不相同， 就需要手机截图后，用**SelectROI**重新选取。
+模板匹配不具备变尺度的特性， 如果你的手机分辨率跟我不相同， 就需要手机截图后，用**SelectROI**重新选取。替换`little_chess.png`
 
-替换`little_chess.png`
+> 模板匹配教程，详见**CH6.1模板匹配-凡哥带你玩转OpenCV** 
 
 ![little_chess.png](http://image.myfange.com/little_chess.png-bk)
 
@@ -279,9 +276,9 @@ adb = ADBHelper(1080, 1920)
 
 - `opencv` 3.3.0 
 
-  > 凡哥配的树莓派的操作系统有编译好的最新的`3.4.0` 版本
-
-**如果你已经配置好了linux开发环境并安装好了opencv， 请跳过此部分**
+> 凡哥配的树莓派的操作系统有编译好的最新的`3.4.0` 版本
+>
+> **如果你已经配置好了linux开发环境并安装好了opencv， 请跳过此部分**
 
 
 
@@ -289,7 +286,7 @@ adb = ADBHelper(1080, 1920)
 
 凡哥帮大家配好了带opencv运行环境的Ubuntu跟树莓派两个版本的操作系统。
 
-**镜像文件均可以在我们的课程群里下载。** 树莓派的系统直接拷贝到SD卡中即可。
+**镜像文件均可以在我们的会员群里下载。** 树莓派的系统直接拷贝到SD卡中即可。
 
 凡哥配好的Ubuntu虚拟机，你也可以一键导入VirtualBox。
 
@@ -301,7 +298,7 @@ adb = ADBHelper(1080, 1920)
 
 #### Linux配置教程
 
-如果你想自己配置的话， 自然也ok， 凡哥帮大家写好了详细的Ubuntu安装与配置说明。详细步骤放在了凡哥的教学网站上 [www.myfange.com](www.myfange.com)
+如果你想自己配置的话，凡哥帮大家写好了详细的Ubuntu安装与配置说明。详细步骤放在了凡哥的教学网站上 [www.myfange.com](www.myfange.com)
 
 **建议大家在PC上浏览教程（PC上，bilibili的播放器才能正常使用）**
 
@@ -309,7 +306,7 @@ adb = ADBHelper(1080, 1920)
 
 [在VirtualBox上安装Ubutu16-04的虚拟机-凡哥带你配置OpenCV开发环境](http://www.myfange.com/p/install-ubuntu-in-virtualbox)
 
-> 在本次教程里, 凡哥带大家安装VirtualBox, 介绍了一下VirtualBox与VMWare的不同之处. 接下来教大家如何创建一个虚拟机, 如何分配物理资源等. 然后我们挂载Ubuntu16.04的镜像, 凡哥逐步教大家安装Ubuntu.课程最后, 你可以进入到你自己安装的Ubuntu桌面, 是不是很有成就感.
+> 在本次教程里, 凡哥带大家安装VirtualBox, 介绍了一下VirtualBox与VMWare的不同之处. 教大家如何创建一个虚拟机, 如何分配物理资源等. 然后我们挂载Ubuntu16.04的镜像, 凡哥逐步教大家安装Ubuntu.课程最后, 你可以进入到你自己安装的Ubuntu桌面, 是不是很有成就感.
 
 
 
@@ -355,7 +352,7 @@ python AutoJump.py
 
 
 
-**VIP教学群 **  592748767
+**VIP会员群 **  592748767
 
-![VIP教学群](http://image.myfange.com/0222_1.jpg-bk)
+![VIP会员群](http://image.myfange.com/0222_1.jpg-bk)
 
