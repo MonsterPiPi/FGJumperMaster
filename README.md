@@ -11,7 +11,9 @@
  
 ![opencv jump course](http://b316.photo.store.qq.com/psb?/V109f8591dRph7/nHu2BEnSweKyjOVJQGyWqb9ARt1AbpitANI8PtDs84c!/b/dDwBAAAAAAAA&bo=wAMcAgAAAAAREPo!&rf=viewer_311)
 
-实际上，我们做的这个稳定的跳一跳图像识别程序，用到的都是**基础的图像处理方法**。非常传统，这些简单的几何体，还不至于劳烦人工智能深度学习。
+实际上，我们做的这个稳定的跳一跳图像识别程序，用到的都是**基础的图像处理方法**。
+
+非常传统，这些简单的几何体，还不至于劳烦人工智能深度学习。
 
 **基本上，所有涉及的函数，凡哥都已经在课程中讲解过了。** 所以，你直接阅读凡哥写的代码会非常容易。
 
@@ -36,6 +38,7 @@
 ### 步骤1: 利用**SelectROI** 截取棋子的图片，用于色彩统计。
 
 > SelectROI 截取图片的部分区域， 见教程**CH4.1_SelectROI区域选择与图像裁剪-凡哥带你玩转OpenCV** 。
+
 
 ![little_chess.png](http://image.myfange.com/little_chess.png-bk)
  
@@ -131,7 +134,9 @@ mask = cv2.inRange(img_hsv, lowerb, upperb)
 
 ![20180222_next_plat_demo03.png](http://image.myfange.com/20180222_next_plat_demo03.png-fg)
 
-在顶点所在的序号分别向左向右延伸， 找到平台的左顶点**left_point**![find_left_point_of_box](http://image.myfange.com/find_left_point_of_box.png-fg)
+在顶点所在的序号分别向左向右延伸， 找到平台的左顶点**left_point**
+
+![find_left_point_of_box](http://image.myfange.com/find_left_point_of_box.png-fg)
 
 
 
@@ -228,7 +233,7 @@ ADB的功能介绍，命令行使用说明，也在**CH3.1_ADB安装过程与ADB
  
 > 见教程**CH3.3_subprocess模块的使用说明-凡哥带你玩转OpenCV**
 
-我们用python对我们需要用到的几个功能 **截图** 与**模拟点击** 做了一个封装。 在教程**CH3.3_subprocess模块的使用说明** 也有详细说明。
+我们用python对我们需要用到的几个功能 **截图** 与**模拟点击** 做了一个封装。 在教程**CH3.3**中也有详细说明。
 
 代码见`ADBHelper.py`
 
@@ -252,6 +257,7 @@ adb = ADBHelper(1080, 1920)
 模板匹配不具备变尺度的特性， 如果你的手机分辨率跟我不相同， 就需要手机截图后，用**SelectROI**重新选取。替换`little_chess.png`
 
 > 模板匹配教程，详见**CH6.1模板匹配-凡哥带你玩转OpenCV** 
+
 
 ![little_chess.png](http://image.myfange.com/little_chess.png-bk)
 
