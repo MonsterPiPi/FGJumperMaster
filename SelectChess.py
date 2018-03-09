@@ -34,5 +34,5 @@ imCrop = img[y : y+h, x:x+w]
 
 # Display cropped image
 cv2.imshow("image_roi", imCrop)
-cv2.imwrite("little_chess", imCrop)
+cv2.imwrite("little_chess.png", imCrop)
 cv2.waitKey(0)
