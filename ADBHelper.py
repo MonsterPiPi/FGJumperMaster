@@ -1,3 +1,4 @@
+#-*- coding: UTF-8 -*-
 '''
     在Python中执行ADB的命令行, 实现对Android设备的操控
 '''
@@ -25,29 +26,10 @@ class ADBHelper:
         '''
             在手机上截图并返回opencv格式的ndarray
         '''
-        # ADB截图的命令
-        cmd = "adb shell screencap -p"
-        # 运行指令
-        p = Popen(shlex.split(cmd), stdin=PIPE, stdout=PIPE, stderr=PIPE)        
-        # output与err返回的均是字节
-        output, err_info = p.communicate()
-        rc = p.returncode
-
-        '''
-            Return Code:
-                0: 读取成功
-                1: 读取失败
-        '''
-        if rc == 1:
-            # 截图读取失败
-            print("截图读取失败")
-            print("ERROR INFO")
-            # 打印报错信息
-            print(err_info)
-            return None
-        # 先写入文件 tmp.png
-        f = open("tmp.png", "wb")
-        f.write(output)
+        cmd = "adb shell screencap -p /sdcard/tmp.png"
+        subprocess.call(shlex.split(cmd))
+        cmd = "adb pull /sdcard/tmp.png tmp.png"
+        subprocess.call(shlex.split(cmd))
         # 使用opencv读取图片 返回ndarray
         return cv2.imread("tmp.png")
     
@@ -57,7 +39,11 @@ class ADBHelper:
         '''
             在屏幕上按压 带延时
         '''
-        return ADBHelper.pressOnScreenAndMove(ptr1, ptr1, delay)
+        #随机位置,随机滑动
+        ptr20 = (ptr1[0] + random.randint(1, 50),)
+        ptr21 = (ptr1[1] + random.randint(1, 50),)
+        ptr2 = ptr20+ptr21
+        return ADBHelper.pressOnScreenAndMove(ptr1, ptr2, delay)
 
     @staticmethod
     def pressOnScreenAndMove(ptr1, ptr2, delay=500):
