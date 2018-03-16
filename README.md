@@ -1,4 +1,4 @@
-#凡哥带你玩转OpenCV之跳一跳小程序
+# 凡哥带你玩转OpenCV之跳一跳小程序
 
 
 
@@ -354,11 +354,4 @@ python AutoJump.py
 
 **OpenCV广场群**  627671914
 
-![广场群](http://image.myfange.com/0222_2.jpg-bk)
-
-
-
-**VIP会员群**  592748767
-
-![VIP会员群](http://image.myfange.com/0222_1.jpg-bk)
-
+![](http://image.myfange.com/微信公众号底部.png-bk)
