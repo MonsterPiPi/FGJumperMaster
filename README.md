@@ -6,7 +6,7 @@
 
 历经1个月的准备，凡哥写出了稳定的跳一跳自动运行脚本，可以稳定地识别跳一跳平面的边缘点，分数轻松破万。
 
-同时凡哥也编写了干货满满的**凡哥带你玩转OpenCV之跳一跳主题教程 .**  在凡哥的公司网站上会陆续更新。[www.myfange.com](www.myfange.com)
+同时凡哥也编写了干货满满的**凡哥带你玩转OpenCV之跳一跳主题教程 .**  在凡哥的公司网站上会陆续更新。[myfange.com](http://www.myfange.com)
 需要完整教程的同学也可加入**OpenCV广场群：627671914**，查看会员制度。 
  
 ![opencv jump course](http://b316.photo.store.qq.com/psb?/V109f8591dRph7/nHu2BEnSweKyjOVJQGyWqb9ARt1AbpitANI8PtDs84c!/b/dDwBAAAAAAAA&bo=wAMcAgAAAAAREPo!&rf=viewer_311)
